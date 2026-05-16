@@ -5,8 +5,14 @@ import pandas as pd
 import warnings
 warnings.filterwarnings("ignore")
  
-from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import StandardScaler
+try:
+    from sklearn.linear_model import LinearRegression
+    from sklearn.preprocessing import StandardScaler
+except ImportError:
+    import subprocess, sys
+    subprocess.run([sys.executable, "-m", "pip", "install", "scikit-learn"], check=True)
+    from sklearn.linear_model import LinearRegression
+    from sklearn.preprocessing import StandardScaler
  
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
