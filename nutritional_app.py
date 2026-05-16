@@ -5,6 +5,9 @@ import pandas as pd
 import warnings
 warnings.filterwarnings("ignore")
 
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler
+
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Nutritional Value Predictor",
@@ -42,9 +45,6 @@ footer { visibility: hidden; }
 # ── Train model on startup ────────────────────────────────────────────────────
 @st.cache_resource
 def train_model():
-    from sklearn.linear_model import LinearRegression
-    from sklearn.preprocessing import StandardScaler
-
     np.random.seed(42)
     n = 400
 
