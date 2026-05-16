@@ -4,23 +4,17 @@ import numpy as np
 import pandas as pd
 import warnings
 warnings.filterwarnings("ignore")
-
-try:
-    from sklearn.linear_model import LinearRegression
-    from sklearn.preprocessing import StandardScaler
-except ImportError:
-    import subprocess, sys
-    subprocess.run([sys.executable, "-m", "pip", "install", "scikit-learn"], check=True)
-    from sklearn.linear_model import LinearRegression
-    from sklearn.preprocessing import StandardScaler
-
+ 
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler
+ 
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Nutritional Value Predictor",
     page_icon="🥗",
     layout="centered",
 )
-
+ 
 # ── CSS ───────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
@@ -47,13 +41,13 @@ div[data-testid="stNumberInput"] input {
 footer { visibility: hidden; }
 </style>
 """, unsafe_allow_html=True)
-
+ 
 # ── Train model on startup ────────────────────────────────────────────────────
 @st.cache_resource
 def train_model():
     np.random.seed(42)
     n = 400
-
+ 
     carbs   = np.random.randint(5,  120, n)
     protein = np.random.randint(2,  50,  n)
     fiber   = np.random.randint(0,  15,  n)
@@ -61,24 +55,24 @@ def train_model():
     fat     = np.random.randint(1,  60,  n)
     sat_fat = np.random.randint(0,  25,  n)
     sodium  = np.random.randint(50, 2500,n)
-
+ 
     # Atwater energy formula + noise
     energy = (carbs * 4) + (protein * 4) + (fat * 9) + (fiber * 2) + np.random.normal(0, 15, n)
     energy = np.clip(energy, 30, 1200).astype(int)
-
+ 
     X = np.column_stack([carbs, protein, fiber, sugar, fat, sat_fat, sodium])
     y = energy
-
+ 
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
-
+ 
     model = LinearRegression()
     model.fit(X_scaled, y)
-
+ 
     return model, scaler
-
+ 
 model, scaler = train_model()
-
+ 
 # ── Hero ──────────────────────────────────────────────────────────────────────
 components.html("""
 <!DOCTYPE html><html><head>
@@ -106,48 +100,48 @@ body{font-family:'DM Sans',sans-serif;background:transparent;text-align:center;p
 </div>
 <div class="divider"></div>
 </body></html>""", height=280)
-
+ 
 # ── Input Section Label ───────────────────────────────────────────────────────
 st.markdown("""
 <p style='font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;
 color:#4ade80;margin-bottom:0.5rem;font-weight:600;'>Enter nutritional values</p>
 """, unsafe_allow_html=True)
-
+ 
 col1, col2 = st.columns(2)
-
+ 
 with col1:
     st.markdown("<p style='color:#86efac;font-size:0.82rem;margin-bottom:4px;'>🌾 Carbohydrates (g)</p>", unsafe_allow_html=True)
     carbs = st.number_input("Carbohydrates", min_value=0, max_value=200, value=45, step=1, label_visibility="collapsed")
-
+ 
     st.markdown("<p style='color:#86efac;font-size:0.82rem;margin-bottom:4px;margin-top:10px;'>💪 Protein (g)</p>", unsafe_allow_html=True)
     protein = st.number_input("Protein", min_value=0, max_value=100, value=15, step=1, label_visibility="collapsed")
-
+ 
     st.markdown("<p style='color:#86efac;font-size:0.82rem;margin-bottom:4px;margin-top:10px;'>🌿 Fiber (g)</p>", unsafe_allow_html=True)
     fiber = st.number_input("Fiber", min_value=0, max_value=30, value=3, step=1, label_visibility="collapsed")
-
+ 
     st.markdown("<p style='color:#86efac;font-size:0.82rem;margin-bottom:4px;margin-top:10px;'>🍬 Sugar (g)</p>", unsafe_allow_html=True)
     sugar = st.number_input("Sugar", min_value=0, max_value=100, value=10, step=1, label_visibility="collapsed")
-
+ 
 with col2:
     st.markdown("<p style='color:#86efac;font-size:0.82rem;margin-bottom:4px;'>🧈 Total Fat (g)</p>", unsafe_allow_html=True)
     fat = st.number_input("Total Fat", min_value=0, max_value=100, value=20, step=1, label_visibility="collapsed")
-
+ 
     st.markdown("<p style='color:#86efac;font-size:0.82rem;margin-bottom:4px;margin-top:10px;'>🫙 Saturated Fat (g)</p>", unsafe_allow_html=True)
     sat_fat = st.number_input("Saturated Fat", min_value=0, max_value=60, value=7, step=1, label_visibility="collapsed")
-
+ 
     st.markdown("<p style='color:#86efac;font-size:0.82rem;margin-bottom:4px;margin-top:10px;'>🧂 Sodium (mg)</p>", unsafe_allow_html=True)
     sodium = st.number_input("Sodium", min_value=0, max_value=3000, value=500, step=10, label_visibility="collapsed")
-
+ 
 st.markdown("<div style='margin-top:1.2rem;'></div>", unsafe_allow_html=True)
 predict_btn = st.button("⚡ Predict Energy (kCal)")
-
+ 
 # ── Predict & Result ──────────────────────────────────────────────────────────
 if predict_btn:
     features = np.array([[carbs, protein, fiber, sugar, fat, sat_fat, sodium]])
     features_scaled = scaler.transform(features)
     predicted_kcal = float(model.predict(features_scaled)[0])
     predicted_kcal = max(30, round(predicted_kcal))
-
+ 
     if predicted_kcal < 200:
         category, cat_color, cat_emoji = "Low Calorie", "#4ade80", "🟢"
         advice = "Great choice for weight management!"
@@ -160,9 +154,9 @@ if predict_btn:
     else:
         category, cat_color, cat_emoji = "Very High Calorie", "#ef4444", "🔴"
         advice = "Limit intake and pair with physical activity."
-
+ 
     daily_pct = min(100, round((predicted_kcal / 2000) * 100))
-
+ 
     result_html = f"""
 <!DOCTYPE html><html><head>
 <style>
@@ -217,9 +211,9 @@ body{{font-family:'DM Sans',sans-serif;background:transparent;padding:1rem 0;}}
   </div>
 </div>
 </body></html>"""
-
+ 
     components.html(result_html, height=380, scrolling=False)
-
+ 
 # ── How it works expander ─────────────────────────────────────────────────────
 with st.expander("ℹ️ How does this work?"):
     st.markdown("""
@@ -232,7 +226,7 @@ with st.expander("ℹ️ How does this work?"):
     <b style='color:#4ade80;'>Dataset:</b> 500+ fast-food items from McDonald's, Pizza Hut, KFC, Domino's & more
     </div>
     """, unsafe_allow_html=True)
-
+ 
 # ── Footer ────────────────────────────────────────────────────────────────────
 components.html("""
 <div style="text-align:center;padding:1.2rem 0 0.5rem;font-family:'DM Sans',sans-serif;">
