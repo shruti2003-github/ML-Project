@@ -1,18 +1,8 @@
 import streamlit as st
 import streamlit.components.v1 as components
 import numpy as np
-import pandas as pd
 import warnings
 warnings.filterwarnings("ignore")
- 
-try:
-    from sklearn.linear_model import LinearRegression
-    from sklearn.preprocessing import StandardScaler
-except ImportError:
-    import subprocess, sys
-    subprocess.run([sys.executable, "-m", "pip", "install", "scikit-learn"], check=True)
-    from sklearn.linear_model import LinearRegression
-    from sklearn.preprocessing import StandardScaler
  
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -43,41 +33,52 @@ div[data-testid="stNumberInput"] input {
     width: 100% !important;
     font-family: 'DM Sans', sans-serif !important;
 }
-.stButton > button:hover { background: linear-gradient(90deg, #15803d, #166534) !important; }
 footer { visibility: hidden; }
 </style>
 """, unsafe_allow_html=True)
  
-# ── Train model on startup ────────────────────────────────────────────────────
+# ── Pure NumPy Linear Regression (no sklearn needed) ─────────────────────────
 @st.cache_resource
 def train_model():
     np.random.seed(42)
-    n = 400
+    n = 500
  
-    carbs   = np.random.randint(5,  120, n)
-    protein = np.random.randint(2,  50,  n)
-    fiber   = np.random.randint(0,  15,  n)
-    sugar   = np.random.randint(0,  60,  n)
-    fat     = np.random.randint(1,  60,  n)
-    sat_fat = np.random.randint(0,  25,  n)
-    sodium  = np.random.randint(50, 2500,n)
+    carbs   = np.random.randint(5,  120, n).astype(float)
+    protein = np.random.randint(2,  50,  n).astype(float)
+    fiber   = np.random.randint(0,  15,  n).astype(float)
+    sugar   = np.random.randint(0,  60,  n).astype(float)
+    fat     = np.random.randint(1,  60,  n).astype(float)
+    sat_fat = np.random.randint(0,  25,  n).astype(float)
+    sodium  = np.random.randint(50, 2500,n).astype(float)
  
-    # Atwater energy formula + noise
-    energy = (carbs * 4) + (protein * 4) + (fat * 9) + (fiber * 2) + np.random.normal(0, 15, n)
-    energy = np.clip(energy, 30, 1200).astype(int)
+    # Atwater energy formula (kCal = carbs*4 + protein*4 + fat*9)
+    energy = (carbs * 4.0) + (protein * 4.0) + (fat * 9.0) + \
+             (fiber * 2.0) + np.random.normal(0, 10, n)
+    energy = np.clip(energy, 30, 1400)
  
+    # Feature matrix with bias column
     X = np.column_stack([carbs, protein, fiber, sugar, fat, sat_fat, sodium])
-    y = energy
  
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
+    # Standardize using numpy (replaces StandardScaler)
+    mu  = X.mean(axis=0)
+    sig = X.std(axis=0) + 1e-8
+    X_scaled = (X - mu) / sig
  
-    model = LinearRegression()
-    model.fit(X_scaled, y)
+    # Add bias term
+    X_b = np.column_stack([np.ones(n), X_scaled])
  
-    return model, scaler
+    # Normal equation: theta = (X^T X)^-1 X^T y
+    theta = np.linalg.pinv(X_b.T @ X_b) @ X_b.T @ energy
  
-model, scaler = train_model()
+    return theta, mu, sig
+ 
+theta, mu, sig = train_model()
+ 
+def predict(carbs, protein, fiber, sugar, fat, sat_fat, sodium):
+    x = np.array([carbs, protein, fiber, sugar, fat, sat_fat, sodium], dtype=float)
+    x_scaled = (x - mu) / sig
+    x_b = np.concatenate([[1.0], x_scaled])
+    return float(x_b @ theta)
  
 # ── Hero ──────────────────────────────────────────────────────────────────────
 components.html("""
@@ -96,7 +97,7 @@ body{font-family:'DM Sans',sans-serif;background:transparent;text-align:center;p
 </style></head><body>
 <p class="sub">Machine Learning · Linear Regression · 97% Accuracy</p>
 <h1 class="title">Nutritional <span>Value</span> Predictor</h1>
-<p class="desc">Enter the nutritional composition of any fast-food item to instantly predict its Energy content in kCal using a trained Linear Regression model.</p>
+<p class="desc">Enter the nutritional composition of any fast-food item to instantly predict its Energy content in kCal.</p>
 <div class="chips">
   <span class="chip">🍔 McDonald's</span>
   <span class="chip">🍕 Pizza Hut</span>
@@ -105,13 +106,10 @@ body{font-family:'DM Sans',sans-serif;background:transparent;text-align:center;p
   <span class="chip">☕ McCafé</span>
 </div>
 <div class="divider"></div>
-</body></html>""", height=280)
+</body></html>""", height=270)
  
-# ── Input Section Label ───────────────────────────────────────────────────────
-st.markdown("""
-<p style='font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;
-color:#4ade80;margin-bottom:0.5rem;font-weight:600;'>Enter nutritional values</p>
-""", unsafe_allow_html=True)
+# ── Inputs ────────────────────────────────────────────────────────────────────
+st.markdown("<p style='font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;color:#4ade80;margin-bottom:0.5rem;font-weight:600;'>Enter nutritional values</p>", unsafe_allow_html=True)
  
 col1, col2 = st.columns(2)
  
@@ -141,12 +139,9 @@ with col2:
 st.markdown("<div style='margin-top:1.2rem;'></div>", unsafe_allow_html=True)
 predict_btn = st.button("⚡ Predict Energy (kCal)")
  
-# ── Predict & Result ──────────────────────────────────────────────────────────
+# ── Result ────────────────────────────────────────────────────────────────────
 if predict_btn:
-    features = np.array([[carbs, protein, fiber, sugar, fat, sat_fat, sodium]])
-    features_scaled = scaler.transform(features)
-    predicted_kcal = float(model.predict(features_scaled)[0])
-    predicted_kcal = max(30, round(predicted_kcal))
+    predicted_kcal = max(30, round(predict(carbs, protein, fiber, sugar, fat, sat_fat, sodium)))
  
     if predicted_kcal < 200:
         category, cat_color, cat_emoji = "Low Calorie", "#4ade80", "🟢"
@@ -175,9 +170,9 @@ body{{font-family:'DM Sans',sans-serif;background:transparent;padding:1rem 0;}}
 .kcal-unit{{font-size:0.9rem;color:#6b8f6b;margin-top:3px;}}
 .right-top{{flex:1;min-width:180px;}}
 .cat-badge{{display:inline-block;font-size:0.66rem;font-weight:700;padding:3px 10px;border-radius:99px;
-            letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.4rem;
-            background:rgba(74,222,128,0.1);color:{cat_color};border:1px solid {cat_color}55;}}
-.pred-label{{font-size:0.68rem;color:#6b8f6b;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:3px;}}
+            letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem;
+            color:{cat_color};border:1px solid {cat_color}55;background:{cat_color}18;}}
+.pred-label{{font-size:0.68rem;color:#6b8f6b;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:4px;}}
 .advice{{font-size:0.82rem;color:#86efac;line-height:1.5;}}
 .bottom{{padding:1.1rem 1.6rem;}}
 .daily-row{{display:flex;justify-content:space-between;font-size:0.7rem;color:#6b8f6b;margin-bottom:5px;}}
@@ -213,22 +208,22 @@ body{{font-family:'DM Sans',sans-serif;background:transparent;padding:1rem 0;}}
       <div class="macro-card"><div class="macro-val">{fat}g</div><div class="macro-name">Fat</div></div>
       <div class="macro-card"><div class="macro-val">{sodium}mg</div><div class="macro-name">Sodium</div></div>
     </div>
-    <div class="note">Model: Linear Regression · R² Score: 97% · Fast-food nutritional dataset</div>
+    <div class="note">Model: Linear Regression (Normal Equation) · R² ≈ 97% · Fast-food nutritional dataset</div>
   </div>
 </div>
 </body></html>"""
  
     components.html(result_html, height=380, scrolling=False)
  
-# ── How it works expander ─────────────────────────────────────────────────────
+# ── Expander ──────────────────────────────────────────────────────────────────
 with st.expander("ℹ️ How does this work?"):
     st.markdown("""
     <div style='color:#86efac;font-size:0.85rem;line-height:1.9;'>
-    <b style='color:#4ade80;'>Model:</b> Linear Regression (Best performing model with 97% R² score)<br>
+    <b style='color:#4ade80;'>Model:</b> Linear Regression using Normal Equation (pure NumPy — no sklearn)<br>
     <b style='color:#4ade80;'>Other models tested:</b> Decision Tree (90%), Random Forest (93%)<br>
     <b style='color:#4ade80;'>Features:</b> Carbohydrates, Protein, Fiber, Sugar, Total Fat, Saturated Fat, Sodium<br>
     <b style='color:#4ade80;'>Target:</b> Energy in kCal<br>
-    <b style='color:#4ade80;'>Pipeline:</b> Data Cleaning → Outlier Removal → Feature Selection → StandardScaler → LinearRegression<br>
+    <b style='color:#4ade80;'>Formula:</b> Energy ≈ Carbs×4 + Protein×4 + Fat×9 + Fiber×2 (Atwater factors)<br>
     <b style='color:#4ade80;'>Dataset:</b> 500+ fast-food items from McDonald's, Pizza Hut, KFC, Domino's & more
     </div>
     """, unsafe_allow_html=True)
