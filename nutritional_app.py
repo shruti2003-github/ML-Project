@@ -16,14 +16,21 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&display=swap');
 html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; }
-.stApp { background: linear-gradient(145deg, #0a1f0a 0%, #0f2d0f 50%, #081a08 100%); }
+.stApp { background: linear-gradient(145deg, #fff0f3 0%, #ffe4ec 50%, #ffd6e7 100%); }
 div[data-testid="stNumberInput"] input {
-    background: rgba(255,255,255,0.05) !important;
-    color: #fff !important;
-    border-color: rgba(74,222,128,0.3) !important;
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+    border: 2px solid #c9184a !important;
+    border-radius: 8px !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+}
+div[data-testid="stNumberInput"] input:focus {
+    border-color: #a4133c !important;
+    box-shadow: 0 0 0 2px rgba(201,24,74,0.2) !important;
 }
 .stButton > button {
-    background: linear-gradient(90deg, #16a34a, #15803d) !important;
+    background: linear-gradient(90deg, #c9184a, #a4133c) !important;
     color: white !important;
     border: none !important;
     border-radius: 12px !important;
@@ -33,6 +40,7 @@ div[data-testid="stNumberInput"] input {
     width: 100% !important;
     font-family: 'DM Sans', sans-serif !important;
 }
+.stButton > button:hover { background: linear-gradient(90deg, #a4133c, #800f2f) !important; }
 footer { visibility: hidden; }
 </style>
 """, unsafe_allow_html=True)
@@ -87,13 +95,13 @@ components.html("""
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'DM Sans',sans-serif;background:transparent;text-align:center;padding:2rem 1rem 1rem;}
-.sub{font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;color:#4ade80;margin-bottom:0.7rem;}
-.title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,5vw,2.8rem);color:#fff;line-height:1.1;margin-bottom:0.5rem;}
-.title span{color:#4ade80;}
-.desc{font-size:0.88rem;color:#6b8f6b;max-width:480px;margin:0 auto 1.5rem;line-height:1.6;}
+.sub{font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;color:#a4133c;margin-bottom:0.7rem;font-weight:600;}
+.title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,5vw,2.8rem);color:#1a1a2e;line-height:1.1;margin-bottom:0.5rem;}
+.title span{color:#c9184a;}
+.desc{font-size:0.88rem;color:#6b4c57;max-width:480px;margin:0 auto 1.5rem;line-height:1.6;}
 .chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;}
-.chip{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);border-radius:99px;padding:5px 14px;font-size:0.75rem;color:#86efac;}
-.divider{width:50px;height:2px;background:linear-gradient(90deg,transparent,#4ade80,transparent);margin:1.2rem auto 0;}
+.chip{background:rgba(201,24,74,0.08);border:1.5px solid rgba(201,24,74,0.3);border-radius:99px;padding:6px 16px;font-size:0.75rem;color:#a4133c;font-weight:500;}
+.divider{width:50px;height:2px;background:linear-gradient(90deg,transparent,#c9184a,transparent);margin:1.2rem auto 0;}
 </style></head><body>
 <p class="sub">Machine Learning · Linear Regression · 97% Accuracy</p>
 <h1 class="title">Nutritional <span>Value</span> Predictor</h1>
@@ -103,37 +111,38 @@ body{font-family:'DM Sans',sans-serif;background:transparent;text-align:center;p
   <span class="chip">🍕 Pizza Hut</span>
   <span class="chip">🍗 KFC</span>
   <span class="chip">🍩 Domino's</span>
-  <span class="chip">☕ McCafé</span>
+  <span class="chip">☕ Starbucks</span>
+  <span class="chip">🍔 Burger King</span>
 </div>
 <div class="divider"></div>
-</body></html>""", height=270)
+</body></html>""", height=280)
  
 # ── Inputs ────────────────────────────────────────────────────────────────────
-st.markdown("<p style='font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;color:#4ade80;margin-bottom:0.5rem;font-weight:600;'>Enter nutritional values</p>", unsafe_allow_html=True)
+st.markdown("<p style='font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;color:#a4133c;margin-bottom:0.5rem;font-weight:600;'>Enter nutritional values</p>", unsafe_allow_html=True)
  
 col1, col2 = st.columns(2)
  
 with col1:
-    st.markdown("<p style='color:#86efac;font-size:0.82rem;margin-bottom:4px;'>🌾 Carbohydrates (g)</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#800f2f;font-size:0.85rem;margin-bottom:4px;font-weight:600;'>🌾 Carbohydrates (g)</p>", unsafe_allow_html=True)
     carbs = st.number_input("Carbohydrates", min_value=0, max_value=200, value=45, step=1, label_visibility="collapsed")
  
-    st.markdown("<p style='color:#86efac;font-size:0.82rem;margin-bottom:4px;margin-top:10px;'>💪 Protein (g)</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#800f2f;font-size:0.85rem;margin-bottom:4px;margin-top:10px;font-weight:600;'>💪 Protein (g)</p>", unsafe_allow_html=True)
     protein = st.number_input("Protein", min_value=0, max_value=100, value=15, step=1, label_visibility="collapsed")
  
-    st.markdown("<p style='color:#86efac;font-size:0.82rem;margin-bottom:4px;margin-top:10px;'>🌿 Fiber (g)</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#800f2f;font-size:0.85rem;margin-bottom:4px;margin-top:10px;font-weight:600;'>🌿 Fiber (g)</p>", unsafe_allow_html=True)
     fiber = st.number_input("Fiber", min_value=0, max_value=30, value=3, step=1, label_visibility="collapsed")
  
-    st.markdown("<p style='color:#86efac;font-size:0.82rem;margin-bottom:4px;margin-top:10px;'>🍬 Sugar (g)</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#800f2f;font-size:0.85rem;margin-bottom:4px;margin-top:10px;font-weight:600;'>🍬 Sugar (g)</p>", unsafe_allow_html=True)
     sugar = st.number_input("Sugar", min_value=0, max_value=100, value=10, step=1, label_visibility="collapsed")
  
 with col2:
-    st.markdown("<p style='color:#86efac;font-size:0.82rem;margin-bottom:4px;'>🧈 Total Fat (g)</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#800f2f;font-size:0.85rem;margin-bottom:4px;font-weight:600;'>🧈 Total Fat (g)</p>", unsafe_allow_html=True)
     fat = st.number_input("Total Fat", min_value=0, max_value=100, value=20, step=1, label_visibility="collapsed")
  
-    st.markdown("<p style='color:#86efac;font-size:0.82rem;margin-bottom:4px;margin-top:10px;'>🫙 Saturated Fat (g)</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#800f2f;font-size:0.85rem;margin-bottom:4px;margin-top:10px;font-weight:600;'>🫙 Saturated Fat (g)</p>", unsafe_allow_html=True)
     sat_fat = st.number_input("Saturated Fat", min_value=0, max_value=60, value=7, step=1, label_visibility="collapsed")
  
-    st.markdown("<p style='color:#86efac;font-size:0.82rem;margin-bottom:4px;margin-top:10px;'>🧂 Sodium (mg)</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#800f2f;font-size:0.85rem;margin-bottom:4px;margin-top:10px;font-weight:600;'>🧂 Sodium (mg)</p>", unsafe_allow_html=True)
     sodium = st.number_input("Sodium", min_value=0, max_value=3000, value=500, step=10, label_visibility="collapsed")
  
 st.markdown("<div style='margin-top:1.2rem;'></div>", unsafe_allow_html=True)
@@ -164,25 +173,25 @@ if predict_btn:
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap');
 *{{box-sizing:border-box;margin:0;padding:0;}}
 body{{font-family:'DM Sans',sans-serif;background:transparent;padding:1rem 0;}}
-.card{{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.25);border-radius:18px;overflow:hidden;}}
-.top{{background:rgba(74,222,128,0.1);padding:1.4rem 1.6rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;}}
-.kcal-big{{font-family:'Playfair Display',serif;font-size:3.2rem;font-weight:900;color:#4ade80;line-height:1;}}
-.kcal-unit{{font-size:0.9rem;color:#6b8f6b;margin-top:3px;}}
+.card{{background:#fff0f3;border:1.5px solid rgba(201,24,74,0.3);border-radius:18px;overflow:hidden;box-shadow:0 4px 24px rgba(201,24,74,0.1);}}
+.top{{background:rgba(201,24,74,0.08);padding:1.4rem 1.6rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;}}
+.kcal-big{{font-family:'Playfair Display',serif;font-size:3.2rem;font-weight:900;color:#c9184a;line-height:1;}}
+.kcal-unit{{font-size:0.9rem;color:#6b4c57;margin-top:3px;}}
 .right-top{{flex:1;min-width:180px;}}
 .cat-badge{{display:inline-block;font-size:0.66rem;font-weight:700;padding:3px 10px;border-radius:99px;
             letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem;
-            color:{cat_color};border:1px solid {cat_color}55;background:{cat_color}18;}}
-.pred-label{{font-size:0.68rem;color:#6b8f6b;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:4px;}}
-.advice{{font-size:0.82rem;color:#86efac;line-height:1.5;}}
-.bottom{{padding:1.1rem 1.6rem;}}
-.daily-row{{display:flex;justify-content:space-between;font-size:0.7rem;color:#6b8f6b;margin-bottom:5px;}}
-.track{{background:rgba(255,255,255,0.06);border-radius:99px;height:10px;overflow:hidden;margin-bottom:1.1rem;}}
-.fill{{height:100%;border-radius:99px;background:linear-gradient(90deg,#16a34a,#4ade80);width:{daily_pct}%;}}
+            color:{cat_color};border:1px solid {cat_color}88;background:{cat_color}22;}}
+.pred-label{{font-size:0.68rem;color:#6b4c57;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:4px;}}
+.advice{{font-size:0.82rem;color:#800f2f;line-height:1.5;font-weight:500;}}
+.bottom{{padding:1.1rem 1.6rem;background:#fff8fa;}}
+.daily-row{{display:flex;justify-content:space-between;font-size:0.7rem;color:#6b4c57;margin-bottom:5px;font-weight:500;}}
+.track{{background:rgba(201,24,74,0.1);border-radius:99px;height:10px;overflow:hidden;margin-bottom:1.1rem;}}
+.fill{{height:100%;border-radius:99px;background:linear-gradient(90deg,#c9184a,#ff4d6d);width:{daily_pct}%;}}
 .macro-grid{{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}}
-.macro-card{{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:8px;text-align:center;}}
-.macro-val{{font-size:1rem;font-weight:600;color:#fff;}}
-.macro-name{{font-size:0.65rem;color:#6b8f6b;margin-top:2px;}}
-.note{{text-align:center;font-size:0.68rem;color:#2d5c2d;margin-top:0.8rem;}}
+.macro-card{{background:#fff0f3;border:1.5px solid rgba(201,24,74,0.2);border-radius:10px;padding:8px;text-align:center;}}
+.macro-val{{font-size:1rem;font-weight:700;color:#800f2f;}}
+.macro-name{{font-size:0.65rem;color:#a4133c;margin-top:2px;font-weight:500;}}
+.note{{text-align:center;font-size:0.68rem;color:#c9184a;margin-top:0.8rem;opacity:0.7;}}
 </style></head><body>
 <div class="card">
   <div class="top">
@@ -199,7 +208,7 @@ body{{font-family:'DM Sans',sans-serif;background:transparent;padding:1rem 0;}}
   <div class="bottom">
     <div class="daily-row">
       <span>% of Daily Intake (2000 kCal diet)</span>
-      <span style="color:#4ade80;font-weight:600;">{daily_pct}%</span>
+      <span style="color:#c9184a;font-weight:700;">{daily_pct}%</span>
     </div>
     <div class="track"><div class="fill"></div></div>
     <div class="macro-grid">
@@ -218,20 +227,19 @@ body{{font-family:'DM Sans',sans-serif;background:transparent;padding:1rem 0;}}
 # ── Expander ──────────────────────────────────────────────────────────────────
 with st.expander("ℹ️ How does this work?"):
     st.markdown("""
-    <div style='color:#86efac;font-size:0.85rem;line-height:1.9;'>
-    <b style='color:#4ade80;'>Model:</b> Linear Regression using Normal Equation (pure NumPy — no sklearn)<br>
-    <b style='color:#4ade80;'>Other models tested:</b> Decision Tree (90%), Random Forest (93%)<br>
-    <b style='color:#4ade80;'>Features:</b> Carbohydrates, Protein, Fiber, Sugar, Total Fat, Saturated Fat, Sodium<br>
-    <b style='color:#4ade80;'>Target:</b> Energy in kCal<br>
-    <b style='color:#4ade80;'>Formula:</b> Energy ≈ Carbs×4 + Protein×4 + Fat×9 + Fiber×2 (Atwater factors)<br>
-    <b style='color:#4ade80;'>Dataset:</b> 500+ fast-food items from McDonald's, Pizza Hut, KFC, Domino's & more
+    <div style='color:#800f2f;font-size:0.85rem;line-height:1.9;'>
+    <b style='color:#c9184a;'>Model:</b> Linear Regression using Normal Equation (pure NumPy — no sklearn)<br>
+    <b style='color:#c9184a;'>Other models tested:</b> Decision Tree (90%), Random Forest (93%)<br>
+    <b style='color:#c9184a;'>Features:</b> Carbohydrates, Protein, Fiber, Sugar, Total Fat, Saturated Fat, Sodium<br>
+    <b style='color:#c9184a;'>Target:</b> Energy in kCal<br>
+    <b style='color:#c9184a;'>Formula:</b> Energy ≈ Carbs×4 + Protein×4 + Fat×9 + Fiber×2 (Atwater factors)<br>
+    <b style='color:#c9184a;'>Dataset:</b> 500+ fast-food items from McDonald's, Pizza Hut, KFC, Domino's, Starbucks & more
     </div>
     """, unsafe_allow_html=True)
  
-# ── Footer ────────────────────────────────────────────────────────────────────
 components.html("""
 <div style="text-align:center;padding:1.2rem 0 0.5rem;font-family:'DM Sans',sans-serif;">
-  <p style="color:#2d5c2d;font-size:0.7rem;">
+  <p style="color:#a4133c;font-size:0.7rem;opacity:0.7;">
     Linear Regression (97%) · Decision Tree (90%) · Random Forest (93%)<br>
     ML Project by Shruti Kesharwani · B.K. Birla College, Kalyan
   </p>
