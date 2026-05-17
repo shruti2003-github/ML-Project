@@ -241,6 +241,6 @@ components.html("""
 <div style="text-align:center;padding:1.2rem 0 0.5rem;font-family:'DM Sans',sans-serif;">
   <p style="color:#a4133c;font-size:0.7rem;opacity:0.7;">
     Linear Regression (97%) · Decision Tree (90%) · Random Forest (93%)<br>
-    ML Project by Shruti Kesharwani · B.K. Birla College, Kalyan
+    Nutritional Value Prediction of Fast Food [Machine Learning Project] by Shruti Kesharwani😊
   </p>
 </div>""", height=60)
